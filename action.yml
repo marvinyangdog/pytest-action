@@ -1,38 +1,38 @@
-name: 'Run pytest'
+name: "Run pytest"
 description: GitHub Action to run pytest tests with GitHub Job Summaries support.
 author: Pavel Zwerschke
-branding: 
+branding:
   icon: file-text
-  color: 'blue'
+  color: "blue"
 inputs:
   job-summary:
     description: Print a GitHub job summary
     required: false
-    default: 'true'
+    default: "true"
   verbose:
     description: Verbose output
     required: false
-    default: 'true'
+    default: "true"
   emoji:
     description: Use emojis in the output
     required: false
-    default: 'true'
+    default: "true"
   custom-arguments:
     description: Custom arguments to pass to pytest
     required: false
-    default: ''
+    default: ""
   custom-pytest:
     description: Custom command to replace the `pytest` call. Can be a custom executable or something like `poetry run pytest` or `micromamba run -n myenv pytest`.
     required: false
-    default: 'pytest'
+    default: "pytest"
   report-title:
     description: Title of the report
     required: false
-    default: 'Test Report'
+    default: "Test Report"
   click-to-expand:
     description: Add 'Click to expand' to the report
     required: false
-    default: 'true'
+    default: "true"
 runs:
   using: "composite"
   steps:
@@ -42,7 +42,7 @@ runs:
         REPORT="$(mktemp)"
         echo "report-path=$REPORT" >> $GITHUB_OUTPUT
         ${{ inputs.custom-pytest }}${{ inputs.verbose == 'true' && ' -v' || '' }}${{ inputs.job-summary == 'true' && ' --md=$REPORT' || '' }}${{ inputs.emoji == 'true' && ' --emoji' || '' }}${{ inputs.custom-arguments != '' && ' ' || '' }}${{ inputs.custom-arguments }}
-      shell: bash -el {0}  # use login shell to source .bashrc for environments
+      shell: bash -el {0} # use login shell to source .bashrc for environments
     - name: Add report to summary
       # run even if pytest fails
       if: always() && inputs.job-summary == 'true'
@@ -65,7 +65,7 @@ runs:
         echo "====================================================================================="
       shell: bash
     - name: Write to comment
-      if: always() && inputs.job-summary == 'true'
+      if: always() && inputs.job-summary == 'true' && github.event_name == 'pull_request'
       uses: actions/github-script@v7
       with:
         script: |
@@ -74,7 +74,7 @@ runs:
           const title = '${{ inputs.report-title }}';
           const summary = report.split('\\n').slice(1).join('\\n');
           const body = title + '\\n\\n' + summary;
-          github.issues.createComment({
+          github.rest.issues.createComment({
             issue_number: context.issue.number,
             owner: context.repo.owner,
             repo: context.repo.repo,
