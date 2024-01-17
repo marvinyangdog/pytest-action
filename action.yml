@@ -63,6 +63,8 @@ runs:
         echo "====================================================================================="
         echo Markdown summaries: "$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"
         echo "====================================================================================="
+        echo "Event name: $GITHUB_EVENT_NAME"
+        echo "Event name: $github.event_name"
       shell: bash
     - name: Write to comment
       if: always() && inputs.job-summary == 'true' && github.event_name == 'pull_request'
